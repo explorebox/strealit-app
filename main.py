@@ -86,13 +86,6 @@ with tab_chat:
     )
 
     if user_prompt:
-        if not st.session_state.api_key:
-            st.session_state.messages.append(
-            {
-                "role": "assistant",
-                "content": "Please configure your Groq API key in the Settings tab."
-            }
-        )
             
         st.session_state.messages.append(
             {
@@ -100,6 +93,13 @@ with tab_chat:
                 "content": user_prompt
             }
         )
+
+        if not st.session_state.api_key:
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": "Please configure your Groq API key in the Settings tab."
+            })
+            st.stop()
 
         try:
 
