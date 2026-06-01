@@ -1,8 +1,27 @@
+import os
 import time
 import streamlit as st
+from langchain_groq import ChatGroq
+from langchain_core.prompts import ChatPromptTemplate
+
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
 st.header("Streamlit Chat App",divider=True)
 
+llm = ChatGroq(model="groq/compound-mini")
+
+
+prompt = ChatPromptTemplate([
+    ("system", "You are an English to Haryanvi translator. Translate whatever the user gives you."),
+    ("human", "{message}")
+])
+
+chain = prompt|llm
 
 st.session_state.show_chat = False
 st.session_state.first_name = ""
@@ -19,7 +38,7 @@ with tab2:
     apiKey = st.text_input(label="Groq API Key")
 
 with tab1:
-    chat_container = st.container(height=600)
+    chat_container = st.container(height=500)
 
     with chat_container:
         with st.chat_message("assistant"):
@@ -27,6 +46,10 @@ with tab1:
 
     prompt = st.chat_input("Type your message here...")
 
+    response = chain.stream({ "message": prompt})
+
+    for r in response:
+        st.session_state.messages.append({ "role": "assistant", "content": r.content    })
 
 def close_sidebar():
     st.set_page_config(initial_sidebar_state="collapsed")
